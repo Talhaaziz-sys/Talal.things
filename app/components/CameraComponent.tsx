@@ -1,7 +1,7 @@
 "use client";
 
 import { Camera, RotateCcw } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type CameraComponentProps = {
   onCapture: (imageDataUrl: string) => void;
@@ -14,32 +14,63 @@ export default function CameraComponent({ onCapture }: CameraComponentProps) {
   const streamRef = useRef<MediaStream | null>(null);
   const [error, setError] = useState<string>("");
 
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      for (const track of streamRef.current.getTracks()) {
+        track.stop();
+      }
+      streamRef.current = null;
+    }
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    try {
+      stopCamera();
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      });
+      streamRef.current = stream;
+      setError("");
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch {
+      setError("Camera is blocked. Ask a grown-up to allow it.");
+    }
+  }, [stopCamera]);
+
   useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-          audio: false,
-        });
+    let cancelled = false;
+    stopCamera();
+    void navigator.mediaDevices
+      .getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false,
+      })
+      .then((stream) => {
+        if (cancelled) {
+          for (const track of stream.getTracks()) {
+            track.stop();
+          }
+          return;
+        }
         streamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
-      } catch {
-        setError("Camera is blocked. Ask a grown-up to allow it.");
-      }
-    };
-
-    void startCamera();
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError("Camera is blocked. Ask a grown-up to allow it.");
+        }
+      });
 
     return () => {
-      if (streamRef.current) {
-        for (const track of streamRef.current.getTracks()) {
-          track.stop();
-        }
-      }
+      cancelled = true;
+      stopCamera();
     };
-  }, []);
+  }, [stopCamera]);
 
   const takePhoto = () => {
     if (!videoRef.current) return;
@@ -83,7 +114,7 @@ export default function CameraComponent({ onCapture }: CameraComponentProps) {
         </button>
         <button
           type="button"
-          onClick={() => window.location.reload()}
+          onClick={() => void startCamera()}
           className="flex items-center justify-center rounded-2xl bg-[#be4dff] px-4 py-4 text-white active:scale-95"
           aria-label="Restart camera"
         >
