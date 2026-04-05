@@ -7,6 +7,8 @@ type CameraComponentProps = {
   onCapture: (imageDataUrl: string) => void;
 };
 
+const JPEG_QUALITY = 0.88;
+
 export default function CameraComponent({ onCapture }: CameraComponentProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -48,7 +50,7 @@ export default function CameraComponent({ onCapture }: CameraComponentProps) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    onCapture(canvas.toDataURL("image/jpeg", 0.88));
+    onCapture(canvas.toDataURL("image/jpeg", JPEG_QUALITY));
   };
 
   if (error) {

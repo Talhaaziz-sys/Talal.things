@@ -12,7 +12,7 @@ type SparkResponse = {
   mission: string;
 };
 
-const STORAGE_KEY = "talal-things-trophy-room";
+const TALAL_THINGS_TROPHY_ROOM = "talal-things-trophy-room";
 
 export default function Home() {
   const [scanResult, setScanResult] = useState<SparkResponse | null>(null);
@@ -21,7 +21,7 @@ export default function Home() {
   const [trophies, setTrophies] = useState<string[]>([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(TALAL_THINGS_TROPHY_ROOM);
     if (!saved) return;
     try {
       const parsed = JSON.parse(saved) as string[];
@@ -32,7 +32,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trophies));
+    localStorage.setItem(TALAL_THINGS_TROPHY_ROOM, JSON.stringify(trophies));
   }, [trophies]);
 
   const handleCapture = async (imageDataUrl: string) => {
