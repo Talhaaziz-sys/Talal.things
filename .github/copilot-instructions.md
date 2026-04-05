@@ -1,0 +1,1 @@
+This app is for a 6-year-old. Use high-contrast colors, zero complex text, and focus on the Gemini 3.1 Pro Multimodal API for vision. The UI should look like a spaceship dashboard.
