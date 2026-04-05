@@ -12,7 +12,7 @@ type SparkResponse = {
   mission: string;
 };
 
-const STORAGE_KEY = "talal_things_trophy_room";
+const STORAGE_KEY = "talal-things-trophy-room";
 
 export default function Home() {
   const [scanResult, setScanResult] = useState<SparkResponse | null>(null);
